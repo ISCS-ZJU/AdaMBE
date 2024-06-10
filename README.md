@@ -1,25 +1,18 @@
 # Abstract
-Maximal biclique enumeration (MBE) in bipartite graphs is an 
-important problem in data mining with many real-world applications. 
-All existing solutions for MBE are designed for CPUs. 
-Parallel MBE algorithms for GPUs are needed for MBE acceleration 
-leveraging its many computing cores.
-However, enumerating maximal bicliques using 
-GPUs has three main challenges including 
-large memory requirement, thread
-divergence, and load imbalance. In this paper, we propose GMBE, 
-the first highly-efficient GPU solution for the MBE problem. 
-To overcome the challenges, we design a stack-based iteration approach
-to reduce GPU memory usage, a pro-active pruning method 
-using the vertex's local neighborhood size to alleviate thread divergence, 
-and a load-aware task scheduling framework to achieve load balance 
-among threads within GPU warps and blocks. Our experimental results show that 
-GMBE on an NVIDIA A100 GPU can achieve 70.6x speedup over the 
-state-of-the-art parallel MBE algorithm PARMBE on a 96-core CPU machine.
+Maximal biclique enumeration (MBE) is a crucial problem in bipartite graph analysis, with broad applications across various domains.
+Recent studies leverage multiple adjacency lists to represent bipartite graphs and rely on extensive set intersections to solve the MBE problem. 
+However, these studies prioritize algorithmic optimization and ignore the inherent inefficiencies caused by data structure representation. 
+These inefficiencies include the costly set intersections on adjacency lists and the redundancy caused by repeatedly accessing the complete neighbors of vertices. 
+As a result, existing MBE approaches are limited to handling small bipartite graphs containing less than 56 million maximal bicliques.
+To address this limitation, we propose two key optimizations for MBE. Firstly, we introduce the bitmap-based dynamic subgraph approach to expedite set intersections in MBE. 
+Secondly, we propose the local neighbor caching approach to minimize redundancy.
+Finally, we integrate these optimizations to present an Adaptive Maximal Biclique Enumeration (AdaMBE) algorithm. 
+Experimental results illustrate that AdaMBE consistently achieves 1.6X-49.7X faster performance than its closest competitor. 
+AdaMBE successfully enumerates all 19 billion maximal bicliques on the TVTropes dataset, demonstrating its scalability and efficiency.
 
-# Try out GMBE
+# Try out AdaMBE
 ## Hardware requirements
-A machine with GPUs.
+A machine with GPUs and multi-cores CPU.
 ## Software Dependencies
 - GNU Make 4.2.1
 - CMake 3.22.0
@@ -27,7 +20,7 @@ A machine with GPUs.
 - GCC/G++ 10.3.0
 - Python 2.7.18
 - Python packages: zplot 1.41, pathlib 1.0.1
-- C++ library: libtbb-dev 2020.1-2
+- C++ library: libtbb-dev 2020.1-2, oneTBB 1.1
 - Ubuntu apt package: Ghostscript, Texlive-extra-utils
 - Nvidia driver 510.85.02
 - Docker 20.10.10
@@ -36,78 +29,66 @@ We provide a docker image for the convenience to deploy this project. You should
 before you run the docker image.
 ```
 sudo apt install nvidia-docker2
-docker pull fhxu00/gmbe
+docker pull fhxu00/adambe
 ```
-To run the docker image, you should execute the following command. Assure that the host machine has installed the nvidia driver with the version mentioned above.
+To run the docker image, you should execute the following command. To measure the performance of GMBE, assure that the host machine has installed the nvidia driver with the version mentioned above.
 ```
-docker run -it --gpus all --name gmbe-test fhxu00/gmbe bash
+docker run -it --gpus all --name adambe-test fhxu00/adambe bash
 ```
-We have prepared the source code in the directory `~/MBE-GPU` and downloaded all testing datasets in the docker image. You can now compile the source code and run the testing scripts in the docker as follows.
+We have prepared the source code in the directory `~/AdaMBE-public` and downloaded all testing datasets in the docker image. Now you just need to compile the source code and run the testing scripts in the docker image as follows.
 
 ## Compiling
-Using the following commands, one can easily compile the GMBE. The generated executable file is located at `bin/MBE_GPU`.
+Using the following commands, one can easily compile the AdaMBE. The generated executable file is located at `bin/MBE_ALL`.
 ```
 # Get source code
 git clone --recursive [repository_url]
-cd MBE-GPU
+cd AdaMBE-public 
 
-# compiling with specific GPU type. If your GPU is A100, V100 and 2080TI, you can replace [GPU_TYPE] with the specific GPU type,
-# otherwise you should revise the file CMakeLists.txt under the directory src/ to support your GPU.  
-bash ./scripts/compile-GMBE.sh [GPU_TYPE]
+# compiling
+bash ./scripts/compile-adambe.sh 
 ```
-You can refer to the [QA-1](#QA) about how to support your GPUs.
 
 ## Dataset preparing
 For convenience, we provide a script to download and preprocess datasets. You can run the following command and you will find 
-the preprocessed datasets under the new directory `datasets/`. You will find two formats of each datasets, one is in adjacency 
-format stored with the extention `.adj`, another one is in edge pairs format stored with the extention `.graph`. The latter one 
-is specifically prepared for ooMBEA and PARMBE.
+the preprocessed datasets under the new directory `datasets/`. 
 ```
 bash ./preprocess/prepare_dataset.sh
 ```
 
 ## Running
 
-You can run GMBE with the following command-line options.
+You can run AdaMBE with the following command-line options.
 ```
-./bin/MBE_GPU 
+./bin/MBE_ALL 
  -i: The path of input dataset file.
- -s: Select one GMBE version to run. 0: GMBE-WARP, 1: GMBE-BLOCK, 2: GMBE, 3: GMBE-Multi-GPUs
- -x: Number of GPUs used to run GMBE, only useful in the multi-GPUs version.
- -m: bound_height, default 20.
- -n: bound_size, default 1500.
- -p: Set which to enable printing the exit time of each SM.
- -f: Set which to disable computing the statistical informations of the graph. Recommended to set. 
+ -s: Select one AdaMBE version to run. 5: AdaMBE-BIT, 6: AdaMBE-LN, 7: AdaMBE, 8: ParAdaMBE.
+ -t: Number of threads used to run AdaMBE, only useful for ParAdaMBE.
+ -o: The ordering technique used. 1: random, 2: increasing, 3: unilateral order mentioned in ooMBEA.
 ```
 ## Experimental workflow
 We provide the scripts to generate the experimental results of Figure 6-13 and Table 2 in the directory `scripts/`. You can execute the scripts as following.
 ```
 # Running on a machine with a 96-core CPU and a GPU
-bash ./scripts/gen-fig-6.sh [GPU_TYPE]
+bash ./scripts/gen-fig-8.sh 
 
 # Running on any machine
-bash ./scripts/gen-fig-7.sh
+bash ./scripts/gen-fig-9.sh
 
-# Running on a machine with a GPU
-bash ./scripts/gen-fig-8.sh [GPU_TYPE]
+# Running on any machine
+bash ./scripts/gen-fig-10.sh 
 
-# Running on a machine with a GPU
-bash ./scripts/gen-fig-9.sh [GPU_TYPE]
+# Running on any machine
+bash ./scripts/gen-fig-11.sh 
 
-# Running on a machine with a GPU
-bash ./scripts/gen-fig-10.sh [GPU_TYPE]
+# Running on any machine
+bash ./scripts/gen-fig-12.sh 
 
-# Running on a machine with a GPU
-bash ./scripts/gen-fig-11.sh [GPU_TYPE]
+# Running on any machine
+bash ./scripts/gen-fig-13.sh 
 
-# Running on three machine with A100, V100 and 2080Ti respectively. 
-# It is required to collect all the results in ./fig/fig-12/[GPU_TYPE].data 
-# on different machines into ./fig/fig-12/fig-12.data on a specific machine.
-# The README.md under fig/fig-12 specify the format of fig-12.data.
-bash ./scripts/gen-fig-12.sh [GPU_TYPE]
+# Running on a machine with a 96-core CPU
+bash ./scripts/gen-fig-14.sh 
 
-# Running on a machine with 8 GPUs
-bash ./scripts/gen-fig-13.sh [GPU_TYPE]
 ```
 We provide the script to generate figures in the directory `fig/` with the results generated in above. You can execute the script as following.
 ```
@@ -115,15 +96,3 @@ cd fig/
 bash genfig.sh
 ```
 Then you will find the figures under the directory `fig/`.
-
-To generate the experimental result of Table 2, you can execute the script as following.
-```
-# Running on a machine with a GPU
-bash ./scripts/gen-table-2.sh [GPU_TYPE]
-```
-Then you will find the experimental result under the directory `table/`.
-# QA
-1. How to solve the error `GPUassert: named symbol not found /usr/local/MBE-GPU/src/IterFinderGpu.cu 215`?<br/>
-This usually means that the flag CUDA_NVCC_FLAGS in `src/CMakeLists.txt` mismatch with your GPUs. To solve the problem, you should revise the file CMakeLists.txt to support your GPU.
-First, you should lookup the CUDA_NVCC_FLAGS matching with your GPU from [this link](https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/). Second, add a `if` branch
-to set CUDA_NVCC_FLAGS for your GPU in `CMakeLists.txt`.
