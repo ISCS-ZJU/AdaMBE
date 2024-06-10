@@ -1,0 +1,13 @@
+# Serie         Baseline        AdaMBE_NC       Overlap
+UL 1 .94 .51
+UF 1 .78 .37
+Mti 1 .80 .29
+TM 1 .86 .47
+AM 1 .82 .32
+WC 1 .89 .60
+YG 1 .87 .44
+SO 1 .74 .25
+Pa 1 .99 .73
+EE 1 .81 .29
+BX 1 .76 .28
+GH 1 .56 .13 
