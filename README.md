@@ -38,14 +38,18 @@ docker run -it --gpus all --name adambe-test fhxu00/adambe bash
 We have prepared the source code in the directory `~/AdaMBE-public` and downloaded all testing datasets in the docker image. Now you just need to compile the source code and run the testing scripts in the docker image as follows.
 
 ## Compiling
-Using the following commands, one can easily compile the AdaMBE. The generated executable file is located at `bin/MBE_ALL`.
+Using the following commands, one can easily compile the AdaMBE and baselines. The generated executable file is located at `bin/MBE_ALL`.
 ```
 # Get source code
 git clone --recursive [repository_url]
 cd AdaMBE-public 
 
-# compiling
+# Compiling AdaMBE
 bash ./scripts/compile-adambe.sh 
+
+# Compiling baselines. [GPU_TYPE] denote the GPU used by GMBE (refer to https://github.com/fhxu00/MBE-GPU.git). 
+bash ./scripts/compile-adambe.sh [GPU_TYPE] 
+```
 ```
 
 ## Dataset preparing

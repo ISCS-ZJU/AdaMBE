@@ -1,5 +1,10 @@
 #! /bin/bash
 
+if [ ! -d "./bin/" ]
+then
+  mkdir ./bin/
+fi
+
 if [ ! -f "./bin/MBE_ALL" ]
 then
   cd ./src || exit
@@ -7,7 +12,7 @@ then
   cd build || exit
   cmake ..
   make
-  mv MBE_ALL ../../bin/
+  mv MBE_* ../../bin/
   cd ../../
 fi
 

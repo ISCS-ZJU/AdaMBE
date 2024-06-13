@@ -38,8 +38,8 @@ do
   ./bin/data_convert "${dataset_name}.txt" "./datasets/${dataset_name}.adj"
   rm "${dataset_name}.txt"
 done
-./bin/data_sampling -i "datasets/LiveJournal.adj" -o "datasets/LJ10.adj" -r 10
-./bin/data_sampling -i "datasets/LiveJournal.adj" -o "datasets/LJ20.adj" -r 20
-./bin/data_sampling -i "datasets/LiveJournal.adj" -o "datasets/LJ30.adj" -r 30
-./bin/data_sampling -i "datasets/LiveJournal.adj" -o "datasets/LJ40.adj" -r 40
-./bin/data_sampling -i "datasets/LiveJournal.adj" -o "datasets/LJ50.adj" -r 50
+./bin/data_sampling -i "datasets/LiveJournal.adj" -o "datasets/LiveJournal_10.adj" -r 0.10
+./bin/data_sampling -i "datasets/LiveJournal.adj" -o "datasets/LiveJournal_20.adj" -r 0.20
+./bin/data_sampling -i "datasets/LiveJournal.adj" -o "datasets/LiveJournal_30.adj" -r 0.30
+./bin/data_sampling -i "datasets/LiveJournal.adj" -o "datasets/LiveJournal_40.adj" -r 0.40
+./bin/data_sampling -i "datasets/LiveJournal.adj" -o "datasets/LiveJournal_50.adj" -r 0.50
