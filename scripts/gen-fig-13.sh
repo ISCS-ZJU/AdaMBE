@@ -34,8 +34,7 @@ then
   cd ../../../
 fi
 
-#dataset_names=(LiveJournal10 LiveJournal20 LiveJournal30 LiveJournal40 LiveJournal50)
-dataset_names=(Unicode Unicode Unicode Unicode Unicode)
+dataset_names=(LiveJournal10 LiveJournal20 LiveJournal30 LiveJournal40 LiveJournal50)
 dataset_abbs=(LJ10 LJ20 LJ30 LJ40 LJ50)
 dataset_num=${#dataset_names[@]}
 

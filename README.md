@@ -48,7 +48,7 @@ cd AdaMBE-public
 bash ./scripts/compile-adambe.sh 
 
 # Compiling baselines. [GPU_TYPE] denote the GPU used by GMBE (refer to https://github.com/fhxu00/MBE-GPU.git). 
-bash ./scripts/compile-adambe.sh [GPU_TYPE] 
+bash ./scripts/compile-baselines.sh [GPU_TYPE] 
 ```
 
 ## Dataset preparing
@@ -69,7 +69,7 @@ You can run AdaMBE with the following command-line options.
  -o: The ordering technique used. 1: random, 2: increasing, 3: unilateral order mentioned in ooMBEA.
 ```
 ## Experimental workflow
-We provide the scripts to generate the experimental results of Figure 6-13 and Table 2 in the directory `scripts/`. You can execute the scripts as following.
+We provide the scripts to generate the experimental results of Figure 8-14 in the directory `scripts/`. You can execute the scripts as following.
 ```
 # Running on a machine with a 96-core CPU and a GPU
 bash ./scripts/gen-fig-8.sh 
